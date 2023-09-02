@@ -1,8 +1,9 @@
 import { Telegraf } from 'telegraf';
 import config from 'config';
 import { message } from 'telegraf/filters';
-import { chatGPT } from './chat-gpt.js';
-import { create } from "./notion.js";
+import { chatGPT } from '../api-integrations/chat-gpt.js';
+import { create } from "../api-integrations/notion.js";
+import { Loader } from "../ui/Loader.js";
 
 const bot = new Telegraf(config.get('TELEGRAF_TOKEN', {
     handlerTimeout: Infinity,
@@ -20,6 +21,8 @@ bot.on(message('text'), async ctx => {
         if (!userKeywords.trim()) {
             ctx.reply('The text cannot be empty')
         }
+        const loader = new Loader(ctx);
+        loader.show();
 
         const response = await chatGPT(userKeywords);
         if (!response) {
@@ -27,12 +30,11 @@ bot.on(message('text'), async ctx => {
         }
 
         const notionResponse = await create(userKeywords, response.content);
+        loader.hide();
         ctx.reply(`Your page: ${notionResponse.url}`);
     } catch (err) {
         console.log('Error while processing text: ', err.message);
     }
-    // await chatGPT(ctx.message.text);
-    // ctx.reply('test');
 })
 
 bot.launch();
