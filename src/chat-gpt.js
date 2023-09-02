@@ -7,7 +7,7 @@ const openai = new OpenAI({
 const CHAT_GPT_MODEL = 'gpt-3.5-turbo';
 
 const ROLES = {
-    ASSISTANT: "ASSISTANT",
+    ASSISTANT: "assistant",
     SYSTEM: "system",
     USER: "user"
 }
@@ -42,8 +42,7 @@ export async function chatGPT (message = "") {
             model: CHAT_GPT_MODEL
         })
 
-        console.log(completion.choices[0].message)
-
+        return completion.choices[0].message;
     } catch (err) {
         console.error('Error occurred during the chat completion', err.message)
     }
